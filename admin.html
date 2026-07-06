@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - صالوني</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Segoe UI',sans-serif;background:#f7fafc;color:#2d3748}
+        :root{--primary:#667eea;--gradient:linear-gradient(135deg,#667eea 0%,#764ba2 100%);--shadow:0 4px 20px rgba(0,0,0,0.08);--danger:#e53e3e;--success:#48bb78}
+        .admin-container{display:flex;min-height:100vh}
+        .sidebar{width:240px;background:var(--gradient);color:#fff;position:fixed;height:100vh;overflow-y:auto;display:flex;flex-direction:column;z-index:100}
+        .sidebar-header{padding:20px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.2)}
+        .sidebar-header h2{font-size:20px}
+        .sidebar-header p{opacity:.8;font-size:14px}
+        .sidebar nav{padding:10px 0;flex:1}
+        .sidebar nav button{display:flex;align-items:center;gap:10px;width:100%;padding:10px 20px;background:transparent;color:rgba(255,255,255,0.7);border:none;cursor:pointer;font-size:14px;transition:.3s;text-align:right}
+        .sidebar nav button:hover{background:rgba(255,255,255,0.15);color:#fff}
+        .sidebar nav button.active{background:rgba(255,255,255,0.2);color:#fff;border-right:4px solid #fff}
+        .sidebar-footer{padding:15px 20px;border-top:1px solid rgba(255,255,255,0.2)}
+        .sidebar-footer a{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.7);text-decoration:none;padding:10px;border-radius:8px;transition:.3s}
+        .sidebar-footer a:hover{background:rgba(255,255,255,0.15);color:#fff}
+        .content{margin-right:240px;padding:25px;flex:1}
+        .tab{display:none;animation:fadeIn .3s}
+        .tab.active{display:block}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+        .tab-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+        .tab-header h1{font-size:24px;color:#2d3748}
+        .tab-header h1 i{color:var(--primary);margin-left:10px}
+        .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:15px;margin-bottom:25px}
+        .stat-card{background:#fff;padding:15px;border-radius:12px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow)}
+        .stat-card i{font-size:28px}
+        .stat-card .stat-info h3{font-size:13px;color:#718096}
+        .stat-card .stat-info span{font-size:26px;font-weight:bold;color:#2d3748}
+        .stat-card.total{background:var(--gradient);color:#fff}
+        .stat-card.total .stat-info h3{color:rgba(255,255,255,0.8)}
+        .stat-card.total .stat-info span{color:#fff}
+        .quick-actions{display:flex;gap:10px;flex-wrap:wrap}
+        .quick-btn{padding:10px 20px;background:#fff;border:2px dashed var(--primary);border-radius:10px;cursor:pointer;font-weight:600;color:var(--primary);transition:.3s}
+        .quick-btn:hover{background:var(--primary);color:#fff}
+        .admin-form{background:#fff;padding:20px;border-radius:12px;box-shadow:var(--shadow);margin-bottom:25px}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+        .form-group{margin-bottom:12px}
+        .form-group label{display:block;font-weight:600;font-size:13px;margin-bottom:5px;color:#2d3748}
+        .form-group label i{color:var(--primary);margin-left:5px}
+        .form-group input,.form-group textarea{width:100%;padding:8px 12px;border:2px solid #e2e8f0;border-radius:8px;font-size:14px;transition:.3s;background:#f7fafc}
+        .form-group input:focus,.form-group textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(102,126,234,0.2)}
+        .form-group textarea{min-height:50px;resize:vertical}
+        .btn-submit{padding:10px 30px;background:var(--gradient);color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;transition:.3s}
+        .btn-submit:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(102,126,234,0.4)}
+        .item-card{background:#fff;padding:12px 16px;border-radius:10px;display:flex;align-items:center;gap:15px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+        .item-card img{width:50px;height:50px;object-fit:cover;border-radius:8px}
+        .item-card .info{flex:1}
+        .item-card .info h4{font-size:15px;margin-bottom:2px}
+        .item-card .info p{color:#718096;font-size:13px}
+        .item-card .actions button{padding:5px 12px;border:none;border-radius:6px;cursor:pointer;font-size:13px;transition:.3s}
+        .btn-delete{background:var(--danger);color:#fff}
+        .btn-delete:hover{background:#c53030}
+        .btn-export,.btn-import{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:.3s;width:100%}
+        .btn-export{background:var(--success);color:#fff}
+        .btn-export:hover{background:#38a169}
+        .btn-import{background:var(--primary);color:#fff}
+        .btn-import:hover{background:#5a67d8}
+        .btn-danger{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;background:var(--danger);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:.3s;width:100%}
+        .btn-danger:hover{background:#c53030}
+        .backup-actions{display:flex;flex-direction:column;gap:12px;max-width:400px}
+        .message{padding:10px 16px;border-radius:8px;margin:8px 0}
+        .message.success{background:#c6f6d5;color:#276749}
+        .message.error{background:#fed7d7;color:#9b2c2c}
+        @media(max-width:768px){.sidebar{width:100%;height:auto;position:relative}.sidebar nav{display:flex;flex-wrap:wrap;justify-content:center;padding:10px}.sidebar nav button{width:auto;padding:6px 12px;font-size:12px;border-radius:20px}.sidebar nav button.active{border-right:none;border-bottom:3px solid #fff}.content{margin-right:0;padding:15px}.form-row{grid-template-columns:1fr}.stats{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+<div class="admin-container">
+    <aside class="sidebar">
+        <div class="sidebar-header"><h2><i class="fas fa-scissors"></i> لوحة التحكم</h2><p id="adminSalonName">صالوني</p></div>
+        <nav>
+            <button class="active" onclick="showTab('dashboard',this)"><i class="fas fa-chart-pie"></i> المعلومات</button>
+            <button onclick="showTab('services',this)"><i class="fas fa-cut"></i> الخدمات</button>
+            <button onclick="showTab('offers',this)"><i class="fas fa-tags"></i> العروض</button>
+            <button onclick="showTab('gallery',this)"><i class="fas fa-images"></i> المعرض</button>
+            <button onclick="showTab('branches',this)"><i class="fas fa-store"></i> الفروع</button>
+            <button onclick="showTab('settings',this)"><i class="fas fa-cog"></i> الإعدادات</button>
+            <button onclick="showTab('backup',this)"><i class="fas fa-database"></i> النسخ الاحتياطي</button>
+        </nav>
+        <div class="sidebar-footer"><a href="index.html" target="_blank"><i class="fas fa-eye"></i> عرض الموقع</a></div>
+    </aside>
+
+    <main class="content">
+        <!-- Dashboard -->
+        <div id="tab-dashboard" class="tab active">
+            <div class="tab-header"><h1><i class="fas fa-chart-pie"></i> لوحة المعلومات</h1><span id="lastUpdate">آخر تحديث: الآن</span></div>
+            <div class="stats">
+                <div class="stat-card"><i class="fas fa-cut" style="color:#667eea"></i><div class="stat-info"><h3>الخدمات</h3><span id="statServices">0</span></div></div>
+                <div class="stat-card"><i class="fas fa-tags" style="color:#e53e3e"></i><div class="stat-info"><h3>العروض</h3><span id="statOffers">0</span></div></div>
+                <div class="stat-card"><i class="fas fa-images" style="color:#48bb78"></i><div class="stat-info"><h3>الصور</h3><span id="statGallery">0</span></div></div>
+                <div class="stat-card"><i class="fas fa-store" style="color:#ed8936"></i><div class="stat-info"><h3>الفروع</h3><span id="statBranches">0</span></div></div>
+                <div class="stat-card total"><i class="fas fa-total"></i><div class="stat-info"><h3>الإجمالي</h3><span id="statTotal">0</span></div></div>
+            </div>
+            <div class="quick-actions">
+                <button onclick="showTab('services')" class="quick-btn"><i class="fas fa-plus"></i> إضافة خدمة</button>
+                <button onclick="showTab('offers')" class="quick-btn"><i class="fas fa-plus"></i> إضافة عرض</button>
+                <button onclick="showTab('gallery')" class="quick-btn"><i class="fas fa-plus"></i> إضافة صورة</button>
+            </div>
+        </div>
+
+        <!-- Services -->
+        <div id="tab-services" class="tab">
+            <div class="tab-header"><h1><i class="fas fa-cut"></i> إدارة الخدمات</h1></div>
+            <form id="serviceForm" class="admin-form">
+                <div class="form-row">
+                    <div class="form-group"><label><i class="fas fa-tag"></i> اسم الخدمة</label><input type="text" id="serviceTitle" placeholder="مثال: قص شعر" required></div>
+                    <div class="form-group"><label><i class="fas fa-coins"></i> السعر</label><input type="number" id="servicePrice" placeholder="مثال: 100"></div>
+                </div>
+                <div class="form-group"><label><i class="fas fa-align-left"></i> الوصف</label><textarea id="serviceDesc" placeholder="وصف الخدمة..."></textarea></div>
+                <div class="form-group"><label><i class="fas fa-image"></i> صورة الخدمة</label><input type="file" id="serviceImage" accept="image/*"></div>
+                <button type="submit" class="btn-submit"><i class="fas fa-plus"></i> إضافة خدمة</button>
+            </form>
+            <div id="servicesList"></div>
+        </div>
+
+        <!-- Offers -->
+        <div id="tab-offers" class="tab">
+            <div class="tab-header"><h1><i class="fas fa-tags"></i> إدارة العروض</h1></div>
+            <form id="offerForm" class="admin-form">
+                <div class="form-row">
+                    <div class="form-group"><label><i class="fas fa-tag"></i> اسم العرض</label><input type="text" id="offerTitle" placeholder="مثال: عرض العيد" required></div>
+                    <div class="form-group"><label><i class="fas fa-percent"></i> نسبة الخصم</label><input type="number" id="offerDiscount" placeholder="مثال: 20"></div>
+                </div>
+                <div class="form-group"><label><i class="fas fa-align-left"></i> الوصف</label><textarea id="offerDesc" placeholder="وصف العرض..."></textarea></div>
+                <div class="form-group"><label><i class="fas fa-image"></i> صورة العرض</label><input type="file" id="offerImage" accept="image/*"></div>
+                <button type="submit" class="btn-submit"><i class="fas fa-plus"></i> إضافة عرض</button>
+            </form>
+            <div id="offersList"></div>
+        </div>
+
+        <!-- Gallery -->
+        <div id="tab-gallery" class="tab">
+            <div class="tab-header"><h1><i class="fas fa-images"></i> إدارة المعرض</h1></div>
+            <form id="galleryForm" class="admin-form">
+                <div class="form-group"><label><i class="fas fa-tag"></i> عنوان الصورة</label><input type="text" id="galleryTitle" placeholder="عنوان الصورة"></div>
+                <div class="form-group"><label><i class="fas fa-image"></i> اختيار صورة</label><input type="file" id="galleryImage" accept="image/*" required></div>
+                <button type="submit" class="btn-submit"><i class="fas fa-plus"></i> إضافة صورة</button>
+            </form>
+            <div id="galleryList"></div>
+        </div>
+
+        <!-- Branches -->
+        <div id="tab-branches" class="tab">
+            <div class="tab-header"><h1><i class="fas fa-store"></i> إدارة الفروع</h1></div>
+            <form id="branchForm" class="admin-form">
+                <div class="form-row">
+                    <div class="form-group"><label><i class="fas fa-store"></i> اسم الفرع</label><input type="text" id="branchName" placeholder="مثال: فرع الرياض" required></div>
+                    <div class="form-group"><label><i class="fas fa-phone"></i> رقم الهاتف</label><input type="text" id="branchPhone" placeholder="مثال: 0560000000"></div>
+                </div>
+                <div class="form-group"><label><i class="fas fa-map-pin"></i> العنوان</label><input type="text" id="branchAddress" placeholder="العنوان التفصيلي"></div>
+                <div class="form-group"><label><i class="fas fa-image"></i> صورة الفرع</label><input type="file" id="branchImage" accept="image/*"></div>
+                <button type="submit" class="btn-submit"><i class="fas fa-plus"></i> إضافة فرع</button>
+            </form>
+            <div id="branchesList"></div>
+        </div>
+
+        <!-- Settings -->
+        <div id="tab-settings" class="tab">
+            <div class="tab-header"><h1><i class="fas fa-cog"></i> الإعدادات العامة</h1></div>
+            <form id="settingsForm" class="admin-form">
+                <div class="form-group"><label><i class="fas fa-store"></i> اسم الصالون</label><input type="text" id="settingName" placeholder="اسم الصالون"></div>
+                <div class="form-group"><label><i class="fas fa-phone"></i> رقم الهاتف</label><input type="text" id="settingPhone" placeholder="رقم الهاتف"></div>
+                <div class="form-group"><label><i class="fas fa-map-pin"></i> العنوان</label><input type="text" id="settingAddress" placeholder="العنوان"></div>
+                <button type="submit" class="btn-submit"><i class="fas fa-save"></i> حفظ الإعدادات</button>
+            </form>
+        </div>
+
+        <!-- Backup -->
+        <div id="tab-backup" class="tab">
+            <div class="tab-header"><h1><i class="fas fa-database"></i> النسخ الاحتياطي</h1></div>
+            <div class="backup-actions">
+                <button onclick="exportData()" class="btn-export"><i class="fas fa-download"></i> تصدير البيانات</button>
+                <button onclick="document.getElementById('importFile').click()" class="btn-import"><i class="fas fa-upload"></i> استيراد البيانات</button>
+                <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+                <button onclick="resetAll()" class="btn-danger"><i class="fas fa-trash"></i> إعادة تعيين الكل</button>
+            </div>
+            <div id="backupInfo"></div>
+        </div>
+    </main>
+</div>
+
+<script>
+// ===== كل الكود في ملف واحد =====
+// Core موجود مسبقاً من index.html لكن نعيد تعريفه هنا
+const Core = {
+    data: { services: [], offers: [], products: [], branches: [], gallery: [], settings: { salonName: 'صالوني', phone: '0560000000', address: 'الرياض' } },
+    init() { this.load(); return this; },
+    load() { try { const d = localStorage.getItem('SALON_DB'); if (d) this.data = JSON.parse(d); } catch(e){} },
+    save() { try { localStorage.setItem('SALON_DB', JSON.stringify(this.data)); } catch(e){} },
+    get(key) { return this.data[key] || []; },
+    add(key, item) { if (!this.data[key]) this.data[key] = []; const id = Date.now()+Math.random().toString(36).substr(2,9); const newItem = {...item, id, createdAt:new Date().toISOString()}; this.data[key].push(newItem); this.save(); return newItem; },
+    deleteByIndex(key, index) { if (!this.data[key] || !this.data[key][index]) return false; this.data[key].splice(index,1); this.save(); return true; },
+    getSettings() { return this.data.settings; },
+    updateSettings(settings) { this.data.settings = {...this.data.settings, ...settings}; this.save(); },
+    export() { return JSON.stringify(this.data, null, 2); },
+    import(jsonData) { try { this.data = JSON.parse(jsonData); this.save(); return true; } catch(e){ return false; } },
+    getStats() { return { services: this.data.services.length, offers: this.data.offers.length, gallery: this.data.gallery.length, branches: this.data.branches.length, total: this.data.services.length + this.data.offers.length + this.data.gallery.length + this.data.branches.length }; },
+    reset() { this.data = { services:[], offers:[], products:[], branches:[], gallery:[], settings:{ salonName:'صالوني', phone:'0560000000', address:'الرياض' } }; this.save(); }
+};
+Core.init();
+window.Core = Core;
+
+// Upload
+const Upload = {
+    CLOUD_NAME: 'YOUR_CLOUD_NAME',  // ⚠️ غير هذا
+    UPLOAD_PRESET: 'YOUR_UPLOAD_PRESET', // ⚠️ وغير هذا
+    async image(file) {
+        if (!file) throw new Error('لم يتم تحديد ملف');
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', this.UPLOAD_PRESET);
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${this.CLOUD_NAME}/image/upload`, { method: 'POST', body: formData });
+        if (!res.ok) throw new Error('فشل رفع الصورة');
+        const data = await res.json();
+        return data.secure_url;
+    }
+};
+window.Upload = Upload;
+
+// ===== ADMIN FUNCTIONS =====
+function showTab(tabId, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.sidebar nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-'+tabId).classList.add('active');
+    if (btn) btn.classList.add('active');
+    const actions = { dashboard: updateStats, services: renderAdminServices, offers: renderAdminOffers, gallery: renderAdminGallery, branches: renderAdminBranches, settings: loadSettings, backup: loadBackupInfo };
+    if (actions[tabId]) actions[tabId]();
+}
+
+function updateStats() {
+    const s = Core.getStats();
+    document.getElementById('statServices').textContent = s.services;
+    document.getElementById('statOffers').textContent = s.offers;
+    document.getElementById('statGallery').textContent = s.gallery;
+    document.getElementById('statBranches').textContent = s.branches;
+    document.getElementById('statTotal').textContent = s.total;
+    document.getElementById('lastUpdate').textContent = 'آخر تحديث: '+new Date().toLocaleTimeString('ar-SA');
+    const settings = Core.getSettings();
+    document.getElementById('adminSalonName').textContent = settings.salonName || 'صالوني';
+}
+
+function renderAdminServices() {
+    const c = document.getElementById('servicesList');
+    const items = Core.get('services');
+    if (!items.length) { c.innerHTML = '<div class="message">📌 لا توجد خدمات</div>'; return; }
+    c.innerHTML = items.map((s,i) => `
+        <div class="item-card">
+            ${s.image ? `<img src="${s.image}">` : `<div style="width:50px;height:50px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px"><i class="fas fa-cut"></i></div>`}
+            <div class="info"><h4>${s.title||'خدمة'}</h4><p>${s.description||''} ${s.price ? '• '+s.price+' ﷼' : ''}</p></div>
+            <div class="actions"><button class="btn-delete" onclick="deleteService(${i})"><i class="fas fa-trash"></i></button></div>
+        </div>
+    `).join('');
+}
+
+function renderAdminOffers() {
+    const c = document.getElementById('offersList');
+    const items = Core.get('offers');
+    if (!items.length) { c.innerHTML = '<div class="message">🎯 لا توجد عروض</div>'; return; }
+    c.innerHTML = items.map((o,i) => `
+        <div class="item-card">
+            ${o.image ? `<img src="${o.image}">` : `<div style="width:50px;height:50px;background:linear-gradient(135deg,#e53e3e,#c53030);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px"><i class="fas fa-tag"></i></div>`}
+            <div class="info"><h4>${o.title||'عرض'}</h4><p>${o.description||''} ${o.discount ? '• خصم '+o.discount+'%' : ''}</p></div>
+            <div class="actions"><button class="btn-delete" onclick="deleteOffer(${i})"><i class="fas fa-trash"></i></button></div>
+        </div>
+    `).join('');
+}
+
+function renderAdminGallery() {
+    const c = document.getElementById('galleryList');
+    const items = Core.get('gallery');
+    if (!items.length) { c.innerHTML = '<div class="message">🖼️ لا توجد صور</div>'; return; }
+    c.innerHTML = items.map((g,i) => `
+        <div class="item-card">
+            <img src="${g.image}">
+            <div class="info"><h4>${g.title||'صورة'}</h4><p>${new Date(g.createdAt).toLocaleDateString('ar-SA')}</p></div>
+            <div class="actions"><button class="btn-delete" onclick="deleteGalleryItem(${i})"><i class="fas fa-trash"></i></button></div>
+        </div>
+    `).join('');
+}
+
+function renderAdminBranches() {
+    const c = document.getElementById('branchesList');
+    const items = Core.get('branches');
+    if (!items.length) { c.innerHTML = '<div class="message">📍 لا توجد فروع</div>'; return; }
+    c.innerHTML = items.map((b,i) => `
+        <div class="item-card">
+            ${b.image ? `<img src="${b.image}">` : `<div style="width:50px;height:50px;background:linear-gradient(135deg,#48bb78,#38a169);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px"><i class="fas fa-store"></i></div>`}
+            <div class="info"><h4>${b.name||'فرع'}</h4><p>${b.address||''} ${b.phone ? '📞 '+b.phone : ''}</p></div>
+            <div class="actions"><button class="btn-delete" onclick="deleteBranch(${i})"><i class="fas fa-trash"></i></button></div>
+        </div>
+    `).join('');
+}
+
+function deleteService(i) { if(confirm('حذف؟')){ Core.deleteByIndex('services',i); renderAdminServices(); updateStats(); showNotification('✅ تم الحذف'); } }
+function deleteOffer(i) { if(confirm('حذف؟')){ Core.deleteByIndex('offers',i); renderAdminOffers(); updateStats(); showNotification('✅ تم الحذف'); } }
+function deleteGalleryItem(i) { if(confirm('حذف؟')){ Core.deleteByIndex('gallery',i); renderAdminGallery(); updateStats(); showNotification('✅ تم الحذف'); } }
+function deleteBranch(i) { if(confirm('حذف؟')){ Core.deleteByIndex('branches',i); renderAdminBranches(); updateStats(); showNotification('✅ تم الحذف'); } }
+
+function loadSettings() {
+    const s = Core.getSettings();
+    document.getElementById('settingName').value = s.salonName||'';
+    document.getElementById('settingPhone').value = s.phone||'';
+    document.getElementById('settingAddress').value = s.address||'';
+}
+
+function loadBackupInfo() {
+    const s = Core.getStats();
+    const settings = Core.getSettings();
+    document.getElementById('backupInfo').innerHTML = `
+        <div style="background:#fff;padding:20px;border-radius:12px;margin-top:20px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
+            <h3>📊 معلومات البيانات</h3>
+            <p><strong>الخدمات:</strong> ${s.services}</p>
+            <p><strong>العروض:</strong> ${s.offers}</p>
+            <p><strong>الصور:</strong> ${s.gallery}</p>
+            <p><strong>الفروع:</strong> ${s.branches}</p>
+            <p><strong>الإجمالي:</strong> ${s.total} عنصر</p>
+            <p><strong>اسم الصالون:</strong> ${settings.salonName||'صالوني'}</p>
+            <p><strong>حجم البيانات:</strong> ${(new Blob([localStorage.getItem('SALON_DB')||'']).size/1024).toFixed(2)} KB</p>
+        </div>
+    `;
+}
+
+function showNotification(msg, type='success') {
+    const n = document.createElement('div');
+    n.textContent = msg;
+    n.style.cssText = `position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:10px;color:#fff;font-weight:600;z-index:9999;background:${type==='success'?'#48bb78':'#e53e3e'};box-shadow:0 4px 20px rgba(0,0,0,0.2)`;
+    document.body.appendChild(n);
+    setTimeout(() => { n.style.opacity='0'; n.style.transition='opacity .3s'; setTimeout(()=>n.remove(),300); }, 2500);
+}
+
+function exportData() {
+    const data = Core.export();
+    const blob = new Blob([data], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `salon_backup_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showNotification('✅ تم التصدير');
+}
+
+function importData(e) {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+        if(Core.import(ev.target.result)) {
+            showNotification('✅ تم الاستيراد');
+            updateStats(); loadBackupInfo(); renderAdminServices(); renderAdminOffers(); renderAdminGallery(); renderAdminBranches(); loadSettings();
+        } else showNotification('❌ فشل الاستيراد', 'error');
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+}
+
+function resetAll() {
+    if(confirm('⚠️ تحذير: هذا سيمحو جميع البيانات!')) {
+        if(confirm('تأكيد نهائي؟')) {
+            Core.reset();
+            updateStats(); renderAdminServices(); renderAdminOffers(); renderAdminGallery(); renderAdminBranches(); loadSettings(); loadBackupInfo();
+            showNotification('✅ تم إعادة التعيين');
+        }
+    }
+}
+
+// ===== FORM SUBMITS =====
+document.getElementById('serviceForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const title = document.getElementById('serviceTitle').value.trim();
+    const desc = document.getElementById('serviceDesc').value.trim();
+    const price = document.getElementById('servicePrice').value;
+    const file = document.getElementById('serviceImage').files[0];
+    if(!title) { showNotification('❌ أدخل اسم الخدمة','error'); return; }
+    let url='';
+    if(file) { try { url = await Upload.image(file); } catch(err) { showNotification('❌ فشل رفع الصورة','error'); return; } }
+    Core.add('services', {title, description:desc, price, image:url});
+    this.reset();
+    renderAdminServices();
+    updateStats();
+    showNotification('✅ تم الإضافة');
+});
+
+document.getElementById('offerForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const title = document.getElementById('offerTitle').value.trim();
+    const desc = document.getElementById('offerDesc').value.trim();
+    const discount = document.getElementById('offerDiscount').value;
+    const file = document.getElementById('offerImage').files[0];
+    if(!title) { showNotification('❌ أدخل اسم العرض','error'); return; }
+    let url='';
+    if(file) { try { url = await Upload.image(file); } catch(err) { showNotification('❌ فشل رفع الصورة','error'); return; } }
+    Core.add('offers', {title, description:desc, discount, image:url});
+    this.reset();
+    renderAdminOffers();
+    updateStats();
+    showNotification('✅ تم الإضافة');
+});
+
+document.getElementById('galleryForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const title = document.getElementById('galleryTitle').value.trim();
+    const file = document.getElementById('galleryImage').files[0];
+    if(!file) { showNotification('❌ اختر صورة','error'); return; }
+    try {
+        const url = await Upload.image(file);
+        Core.add('gallery', {title, image:url});
+        this.reset();
+        renderAdminGallery();
+        updateStats();
+        showNotification('✅ تم الإضافة');
+    } catch(err) { showNotification('❌ فشل رفع الصورة','error'); }
+});
+
+document.getElementById('branchForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const name = document.getElementById('branchName').value.trim();
+    const address = document.getElementById('branchAddress').value.trim();
+    const phone = document.getElementById('branchPhone').value.trim();
+    const file = document.getElementById('branchImage').files[0];
+    if(!name) { showNotification('❌ أدخل اسم الفرع','error'); return; }
+    let url='';
+    if(file) { try { url = await Upload.image(file); } catch(err) { showNotification('❌ فشل رفع الصورة','error'); return; } }
+    Core.add('branches', {name, address, phone, image:url});
+    this.reset();
+    renderAdminBranches();
+    updateStats();
+    showNotification('✅ تم الإضافة');
+});
+
+document.getElementById('settingsForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    Core.updateSettings({
+        salonName: document.getElementById('settingName').value.trim(),
+        phone: document.getElementById('settingPhone').value.trim(),
+        address: document.getElementById('settingAddress').value.trim()
+    });
+    showNotification('✅ تم حفظ الإعدادات');
+    updateStats();
+});
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', function() {
+    updateStats();
+    loadSettings();
+    loadBackupInfo();
+    document.querySelector('.sidebar nav button.active')?.click();
+});
+</script>
+</body>
+</html>
