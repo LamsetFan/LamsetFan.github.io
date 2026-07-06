@@ -132,7 +132,7 @@ window.Core = Core;
 
 // ===== UPLOAD SYSTEM =====
 const Upload = {
-    CLOUD_NAME: 'salon_preset',  // ⚠️ غير هذا
+    CLOUD_NAME: 'lxmxz4jc1',  // ⚠️ غير هذا
     UPLOAD_PRESET: 'salon_preset', // ⚠️ وغير هذا
     async image(file) {
         if (!file) throw new Error('لم يتم تحديد ملف');
