@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صالوني - منصة الصالونات</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Segoe UI',sans-serif;background:#f7fafc;color:#2d3748}
+        :root{--primary:#667eea;--gradient:linear-gradient(135deg,#667eea 0%,#764ba2 100%);--shadow:0 4px 20px rgba(0,0,0,0.08)}
+        header{background:#fff;box-shadow:var(--shadow);position:sticky;top:0;z-index:1000}
+        nav{max-width:1200px;margin:0 auto;padding:15px 20px;display:flex;justify-content:space-between;align-items:center}
+        .logo{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:bold;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .nav-links{display:flex;gap:20px;align-items:center}
+        .nav-links a{text-decoration:none;color:#2d3748;font-weight:500;padding:8px 16px;border-radius:8px;transition:.3s}
+        .nav-links a:hover{color:var(--primary);background:rgba(102,126,234,0.1)}
+        .nav-links a.admin-link{background:var(--gradient);color:#fff;border-radius:25px}
+        .nav-links a.admin-link:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(102,126,234,0.4)}
+        .menu-toggle{display:none;font-size:28px;cursor:pointer}
+        .hero{background:var(--gradient);color:#fff;padding:80px 20px;text-align:center}
+        .hero h1{font-size:48px;margin-bottom:20px}
+        .hero h1 span{background:rgba(255,255,255,0.2);padding:5px 20px;border-radius:15px;display:inline-block}
+        .hero p{font-size:20px;opacity:.9;margin-bottom:30px}
+        .hero-btn{display:inline-block;padding:15px 40px;background:#fff;color:var(--primary);text-decoration:none;border-radius:50px;font-weight:bold;font-size:18px;transition:.3s;box-shadow:0 4px 20px rgba(0,0,0,0.2)}
+        .hero-btn:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,0.3)}
+        .section{padding:60px 20px;max-width:1200px;margin:0 auto}
+        .section.alt-bg{background:#fff;border-radius:16px;margin:20px auto;box-shadow:var(--shadow);padding:60px 20px}
+        .section-header{text-align:center;margin-bottom:40px}
+        .section-header h2{font-size:36px;margin-bottom:10px}
+        .section-header h2 i{color:var(--primary);margin-left:10px}
+        .section-header p{color:#718096;font-size:18px}
+        .services-grid,.offers-grid,.gallery-grid,.branches-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:30px}
+        .item{background:#fff;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);transition:.3s}
+        .item:hover{transform:translateY(-8px);box-shadow:0 12px 40px rgba(0,0,0,0.15)}
+        .item img{width:100%;height:220px;object-fit:cover;transition:.3s}
+        .item:hover img{transform:scale(1.05)}
+        .item-content{padding:20px}
+        .item-content h3{font-size:20px;margin-bottom:8px}
+        .item-content p{color:#718096;font-size:14px;margin-bottom:10px}
+        .item-content .price{display:inline-block;background:var(--gradient);color:#fff;padding:5px 15px;border-radius:20px;font-weight:bold;font-size:18px}
+        .badge{position:absolute;top:15px;right:15px;background:#e53e3e;color:#fff;padding:5px 15px;border-radius:20px;font-size:14px;font-weight:bold}
+        .item{position:relative}
+        .loading{text-align:center;padding:40px;color:#718096;font-size:18px;grid-column:1/-1}
+        footer{background:#2d3748;color:#fff;padding:40px 20px 0}
+        .footer-content{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:40px;padding-bottom:30px}
+        .footer-section h3,.footer-section h4{margin-bottom:15px}
+        .footer-section h3 i{color:var(--primary)}
+        .footer-section a{display:block;color:#cbd5e0;text-decoration:none;padding:5px 0;transition:.3s}
+        .footer-section a:hover{color:#fff;padding-right:10px}
+        .footer-section p{color:#cbd5e0;margin:8px 0}
+        .footer-section p i{margin-left:10px;color:var(--primary)}
+        .social-links{display:flex;gap:15px;margin-top:15px}
+        .social-links a{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:rgba(255,255,255,0.1);border-radius:50%;color:#fff;transition:.3s}
+        .social-links a:hover{background:var(--gradient);transform:translateY(-3px)}
+        .footer-bottom{border-top:1px solid rgba(255,255,255,0.1);text-align:center;padding:20px 0;color:#a0aec0;font-size:14px}
+        @media(max-width:768px){.nav-links{display:none;flex-direction:column;width:100%;background:#fff;position:absolute;top:70px;right:0;padding:20px;box-shadow:var(--shadow)}.nav-links.open{display:flex}.menu-toggle{display:block}.hero h1{font-size:32px}.services-grid,.offers-grid,.gallery-grid,.branches-grid{grid-template-columns:1fr}.section{padding:40px 15px}.section-header h2{font-size:28px}}
+    </style>
+</head>
+<body>
+
+<header>
+    <nav>
+        <div class="logo"><i class="fas fa-scissors"></i> <span id="salonName">صالوني</span></div>
+        <div class="nav-links" id="navLinks">
+            <a href="#services"><i class="fas fa-cut"></i> الخدمات</a>
+            <a href="#offers"><i class="fas fa-tags"></i> العروض</a>
+            <a href="#gallery"><i class="fas fa-images"></i> المعرض</a>
+            <a href="#branches"><i class="fas fa-map-marker-alt"></i> الفروع</a>
+            <a href="admin.html" class="admin-link"><i class="fas fa-cog"></i> لوحة التحكم</a>
+        </div>
+        <div class="menu-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')"><i class="fas fa-bars"></i></div>
+    </nav>
+</header>
+
+<section class="hero">
+    <div class="hero-content">
+        <h1>مرحباً بك في <span id="heroSalonName">صالوني</span></h1>
+        <p>أفضل الخدمات بأعلى جودة، نقدم لك تجربة فريدة في عالم الجمال والعناية</p>
+        <a href="#services" class="hero-btn">استكشف خدماتنا</a>
+    </div>
+</section>
+
+<section id="services" class="section">
+    <div class="section-header"><h2><i class="fas fa-cut"></i> خدماتنا</h2><p>نقدم لك أفضل الخدمات بأعلى مستويات الجودة</p></div>
+    <div class="services-grid" id="servicesContainer"><div class="loading">جاري تحميل الخدمات...</div></div>
+</section>
+
+<section id="offers" class="section alt-bg">
+    <div class="section-header"><h2><i class="fas fa-tags"></i> العروض الخاصة</h2><p>استفد من العروض الحصرية والخصومات المميزة</p></div>
+    <div class="offers-grid" id="offersContainer"><div class="loading">جاري تحميل العروض...</div></div>
+</section>
+
+<section id="gallery" class="section">
+    <div class="section-header"><h2><i class="fas fa-images"></i> معرض الأعمال</h2><p>شاهد أحدث أعمالنا وإبداعاتنا</p></div>
+    <div class="gallery-grid" id="galleryContainer"><div class="loading">جاري تحميل المعرض...</div></div>
+</section>
+
+<section id="branches" class="section alt-bg">
+    <div class="section-header"><h2><i class="fas fa-map-marker-alt"></i> فروعنا</h2><p>زورنا في أقرب فرع إليك</p></div>
+    <div class="branches-grid" id="branchesContainer"><div class="loading">جاري تحميل الفروع...</div></div>
+</section>
+
+<footer>
+    <div class="footer-content">
+        <div class="footer-section"><h3><i class="fas fa-scissors"></i> <span id="footerSalonName">صالوني</span></h3><p id="footerAddress">نقدم أفضل خدمات التجميل والعناية</p></div>
+        <div class="footer-section"><h4>روابط سريعة</h4><a href="#services">الخدمات</a><a href="#offers">العروض</a><a href="#gallery">المعرض</a><a href="#branches">الفروع</a></div>
+        <div class="footer-section"><h4>تواصل معنا</h4><p><i class="fas fa-phone"></i> <span id="footerPhone">0560000000</span></p><p><i class="fas fa-envelope"></i> info@salon.com</p>
+        <div class="social-links"><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-snapchat"></i></a></div></div>
+    </div>
+    <div class="footer-bottom"><p>جميع الحقوق محفوظة © 2026 <span id="footerSalonName2">صالوني</span></p></div>
+</footer>
+
+<script>
+// ===== CORE SYSTEM =====
+const Core = {
+    data: { services: [], offers: [], products: [], branches: [], gallery: [], settings: { salonName: 'صالوني', phone: '0560000000', address: 'الرياض' } },
+    init() { this.load(); return this; },
+    load() { try { const d = localStorage.getItem('SALON_DB'); if (d) this.data = JSON.parse(d); } catch(e){} },
+    save() { try { localStorage.setItem('SALON_DB', JSON.stringify(this.data)); } catch(e){} },
+    get(key) { return this.data[key] || []; },
+    add(key, item) { if (!this.data[key]) this.data[key] = []; const id = Date.now()+Math.random().toString(36).substr(2,9); const newItem = {...item, id, createdAt:new Date().toISOString()}; this.data[key].push(newItem); this.save(); return newItem; },
+    deleteByIndex(key, index) { if (!this.data[key] || !this.data[key][index]) return false; this.data[key].splice(index,1); this.save(); return true; },
+    getSettings() { return this.data.settings; },
+    updateSettings(settings) { this.data.settings = {...this.data.settings, ...settings}; this.save(); },
+    export() { return JSON.stringify(this.data, null, 2); },
+    import(jsonData) { try { this.data = JSON.parse(jsonData); this.save(); return true; } catch(e){ return false; } },
+    getStats() { return { services: this.data.services.length, offers: this.data.offers.length, gallery: this.data.gallery.length, branches: this.data.branches.length, total: this.data.services.length + this.data.offers.length + this.data.gallery.length + this.data.branches.length }; }
+};
+Core.init();
+window.Core = Core;
+
+// ===== UPLOAD SYSTEM =====
+const Upload = {
+    CLOUD_NAME: 'YOUR_CLOUD_NAME',  // ⚠️ غير هذا
+    UPLOAD_PRESET: 'YOUR_UPLOAD_PRESET', // ⚠️ وغير هذا
+    async image(file) {
+        if (!file) throw new Error('لم يتم تحديد ملف');
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', this.UPLOAD_PRESET);
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${this.CLOUD_NAME}/image/upload`, { method: 'POST', body: formData });
+        if (!res.ok) throw new Error('فشل رفع الصورة');
+        const data = await res.json();
+        return data.secure_url;
+    }
+};
+window.Upload = Upload;
+
+// ===== APP =====
+function updateSalonName() {
+    const s = Core.getSettings();
+    const name = s.salonName || 'صالوني';
+    document.getElementById('salonName').textContent = name;
+    document.getElementById('heroSalonName').textContent = name;
+    document.getElementById('footerSalonName').textContent = name;
+    document.getElementById('footerSalonName2').textContent = name;
+    document.getElementById('footerPhone').textContent = s.phone || '0560000000';
+    document.getElementById('footerAddress').textContent = s.address || 'نقدم أفضل خدمات التجميل';
+    document.title = name;
+}
+
+function renderServices() {
+    const c = document.getElementById('servicesContainer');
+    const items = Core.get('services');
+    if (!items.length) { c.innerHTML = '<div class="loading">لا توجد خدمات</div>'; return; }
+    c.innerHTML = items.map(s => `
+        <div class="item">
+            ${s.image ? `<img src="${s.image}">` : `<div style="height:220px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:48px"><i class="fas fa-cut"></i></div>`}
+            <div class="item-content"><h3>${s.title||'خدمة'}</h3><p>${s.description||''}</p>${s.price ? `<span class="price">${s.price} ﷼</span>` : ''}</div>
+        </div>
+    `).join('');
+}
+
+function renderOffers() {
+    const c = document.getElementById('offersContainer');
+    const items = Core.get('offers');
+    if (!items.length) { c.innerHTML = '<div class="loading">لا توجد عروض</div>'; return; }
+    c.innerHTML = items.map(o => `
+        <div class="item">
+            ${o.image ? `<img src="${o.image}">` : `<div style="height:220px;background:linear-gradient(135deg,#e53e3e,#c53030);display:flex;align-items:center;justify-content:center;color:#fff;font-size:48px"><i class="fas fa-tag"></i></div>`}
+            <div class="item-content"><h3>${o.title||'عرض'}</h3><p>${o.description||''}</p>${o.discount ? `<span class="badge">خصم ${o.discount}%</span>` : ''}</div>
+        </div>
+    `).join('');
+}
+
+function renderGallery() {
+    const c = document.getElementById('galleryContainer');
+    const items = Core.get('gallery');
+    if (!items.length) { c.innerHTML = '<div class="loading">لا توجد صور</div>'; return; }
+    c.innerHTML = items.map(g => `
+        <div class="item"><img src="${g.image}">${g.title ? `<div class="item-content"><p>${g.title}</p></div>` : ''}</div>
+    `).join('');
+}
+
+function renderBranches() {
+    const c = document.getElementById('branchesContainer');
+    const items = Core.get('branches');
+    if (!items.length) { c.innerHTML = '<div class="loading">لا توجد فروع</div>'; return; }
+    c.innerHTML = items.map(b => `
+        <div class="item">
+            ${b.image ? `<img src="${b.image}">` : `<div style="height:220px;background:linear-gradient(135deg,#48bb78,#38a169);display:flex;align-items:center;justify-content:center;color:#fff;font-size:48px"><i class="fas fa-store"></i></div>`}
+            <div class="item-content"><h3>${b.name||'فرع'}</h3>${b.address ? `<p>📍 ${b.address}</p>` : ''}${b.phone ? `<p>📞 ${b.phone}</p>` : ''}</div>
+        </div>
+    `).join('');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateSalonName();
+    renderServices();
+    renderOffers();
+    renderGallery();
+    renderBranches();
+});
+</script>
+</body>
+</html>
